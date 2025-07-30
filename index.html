@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Carletes | Portafolio</title>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;700&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --bg-start: #002e20;
+      --bg-middle: #0a0a0c;
+      --bg-end: #002e20;
+      --text: #eaeaea;
+      --accent: #00ffc3;
+      --purple: #bb86fc;
+      --glass: rgba(255, 255, 255, 0.05);
+      --border: rgba(255, 255, 255, 0.15);
+    }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      font-family: 'Outfit', sans-serif;
+      background: linear-gradient(to bottom, var(--bg-start) 0%, var(--bg-middle) 50%, var(--bg-end) 100%);
+      color: var(--text);
+    }
+    nav {
+      position: fixed; top: 0; width: 100%; display: flex;
+      justify-content: center; align-items: center;
+      background: transparent; padding: 1rem; z-index: 10;
+    }
+    nav a {
+      margin: 0 1rem; color: var(--text); text-decoration: none;
+      font-weight: 500; opacity: 0; transform: translateY(-10px);
+      transition: opacity 0.6s ease, transform 0.6s ease;
+    }
+    nav a:hover { color: var(--accent); }
+    section {
+      min-height: 100vh; display: flex;
+      align-items: center; justify-content: center;
+      padding: 4rem 2rem;
+      opacity: 0; transform: translateY(20px);
+      transition: opacity 0.8s ease, transform 0.8s ease;
+    }
+    .visible { opacity:1; transform: translateY(0); }
+    .hero { display: flex; flex-direction: column; text-align: center; }
+    .hero h1 { font-size: 3rem; line-height: 1.2; text-shadow: 0 0 10px var(--accent); }
+    .hero span { color: var(--accent); }
+    .subtext { margin-top: 1rem; color: rgba(255,255,255,0.7); }
+    .social { margin-top: 1.5rem; display: flex; gap:1rem; justify-content:center; }
+    .social img { width:30px; height:30px; transition: transform 0.3s; }
+    .social img:hover { transform: scale(1.2); }
+    .info-cards { display:flex; gap:2rem; flex-wrap:wrap; justify-content:center; max-width:1000px; }
+    .card {
+      background:var(--glass); border:1px solid var(--border);
+      backdrop-filter:blur(12px); border-radius:16px;
+      padding:2rem; width:300px; text-align:left;
+    }
+    .card h2 { margin-bottom:1rem; color: var(--purple); }
+    .card p, .card li { color:#ccc; }
+    .stack { list-style:none; padding:0; }
+    .stack li { margin-bottom:0.5rem; }
+    .stack-icons {
+      display:flex; flex-wrap:wrap; gap:0.8rem;
+      margin-top:1rem; justify-content:center;
+    }
+    .stack-icons img {
+      width:32px; height:32px;
+      filter:drop-shadow(0 0 4px var(--accent));
+    }
+    .contact-container {
+      display:flex; gap:3rem; align-items:center;
+      flex-wrap:wrap; justify-content:center; width:100%;
+    }
+    .contact-card {
+      background:var(--glass); border:1px solid var(--border);
+      backdrop-filter:blur(12px); border-radius:16px;
+      padding:2rem; max-width:350px; text-align:left;
+    }
+    .contact-card h2 { color:var(--text); margin-bottom:1rem; }
+    .contact-card p { margin-bottom:0.5rem; color:#ccc; }
+    .contact-icons { display:flex; gap:1rem; margin-top:1rem; }
+    .contact-icons img { width:28px; height:28px; }
+    .fade-wrapper {
+      position:relative; max-width:300px;
+      /* mask to fully fade with background */
+      mask-image: linear-gradient(to top, transparent 0%, black 30%, black 100%);
+      -webkit-mask-image: linear-gradient(to top, transparent 0%, black 30%, black 100%);
+    }
+    .fade-wrapper img { width:100%; display:block; }
+    @media(max-width:768px) {
+      .contact-container { flex-direction:column-reverse; text-align:center; }
+    }
+  </style>
+</head>
+<body>
+  <nav>
+    <a href="#inicio">Inicio</a>
+    <a href="#info">Info</a>
+    <a href="#contacto">Contacto</a>
+  </nav>
+
+  <section id="inicio" class="hero">
+    <h1>Hola, soy <span>Carletes</span></h1>
+    <p class="subtext">Codificando ideas en experiencias únicas.</p>
+    <div class="social">
+      <a href="#"><img src="https://icones.pro/wp-content/uploads/2021/06/icone-github-grise.png" alt="GitHub"></a>
+      <a href="#"><img src="https://images.icon-icons.com/792/PNG/512/INSTAGRAM_icon-icons.com_65535.png" alt="Instagram"></a>
+      <a href="#"><img src="https://icon-library.com/images/email-icon-png-white/email-icon-png-white-5.jpg" alt="Email"></a>
+    </div>
+  </section>
+
+  <section id="info">
+    <div class="info-cards">
+      <div class="card">
+        <h2>📁 Proyectos</h2>
+        <ul class="stack">
+          <li><strong>SASNO</strong> — Alerta sísmica en tiempo real</li>
+          <li><strong>SAME DECODER</strong> — Decodificador EAS-SAME: Alertas en Menos de 5 Segundos</li>
+          <li><strong>CarletesGames</strong> — Sitio web de Videojuegos</li>
+        </ul>
+      </div>
+      <div class="card">
+        <h2>👤 Sobre mí</h2>
+        <p>Soy un desarrollador full-stack apasionado por el diseño visual y la performance. Me encanta construir apps únicas, rápidas y creativas.</p>
+      </div>
+      <div class="card">
+        <h2>⚒️ Stack tecnológico</h2>
+        <div class="stack-icons">
+          <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/html5/html5-original.svg" alt="HTML">
+          <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/css3/css3-original.svg" alt="CSS">
+          <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/javascript/javascript-original.svg" alt="JS">
+          <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/react/react-original.svg" alt="React">
+          <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/nextjs/nextjs-original.svg" alt="Next.js">
+          <img src="https://cdn.iconscout.com/icon/free/png-512/free-swift-3629098-3030370.png?f=webp&w=256" alt="Swift">
+          <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/nodejs/nodejs-original.svg" alt="Node.js">
+          <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/git/git-original.svg" alt="Git">
+          <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/github/github-original.svg" alt="GitHub">
+          <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/figma/figma-original.svg" alt="Figma">
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="contacto" class="contact">
+    <div class="contact-container">
+      <div class="contact-card">
+        <h2>Contáctanos</h2>
+        <p><strong>Carletes</strong></p>
+        <p>2226778397</p>
+        <p>carletes@soycarletes.com</p>
+        <div class="contact-icons">
+          <a href="#"><img src="https://cdn-icons-png.flaticon.com/512/145/145807.png" alt="LinkedIn"></a>
+          <a href="#"><img src="https://upload.wikimedia.org/wikipedia/commons/a/a5/Instagram_icon.png" alt="Instagram"></a>
+          <a href="#"><img src="https://cdn-icons-png.flaticon.com/512/733/733547.png" alt="Facebook"></a>
+          <a href="#"><img src="https://cdn-icons-png.flaticon.com/512/733/733579.png" alt="Twitter"></a>
+        </div>
+      </div>
+      <div class="fade-wrapper">
+        <img class="profile-img" src="/carletes.png" alt="Carletes Foto">
+      </div>
+    </div>
+  </section>
+
+  <script>
+    const elems = document.querySelectorAll('nav a, section');
+    const obs = new IntersectionObserver(entries => {
+      entries.forEach(e => {
+        if(e.isIntersecting) e.target.classList.add('visible');
+      });
+    }, { threshold: 0.2 });
+    elems.forEach(el => obs.observe(el));
+  </script>
+</body>
+</html>
