@@ -1,0 +1,427 @@
+<!DOCTYPE html>
+<html lang="es-MX">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>MONITOR SASNO</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@300;500;700;900&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --core-bg: #0f172a;
+            --panel-bg: #1e293b;
+            --line-col: #334155;
+            --txt-prim: #f1f5f9;
+            --txt-dim: #94a3b8;
+            --st-ok: #10b981;
+            --st-err: #ef4444;
+            --st-warn: #ff6600;
+            --font-stack: 'Chakra Petch', sans-serif;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; user-select: none; }
+
+        body {
+            background-color: var(--core-bg);
+            color: var(--txt-prim);
+            font-family: var(--font-stack);
+            height: 100vh;
+            overflow: hidden;
+            display: flex; align-items: center; justify-content: center;
+        }
+
+        #main-grid {
+            width: 100%; max-width: 480px; padding: 20px;
+            display: grid; grid-template-columns: 1fr 1fr; gap: 15px;
+        }
+
+        .top-deck {
+            grid-column: span 2; display: flex; justify-content: space-between; align-items: center;
+            margin-bottom: 10px; border-bottom: 2px solid var(--line-col); padding-bottom: 15px;
+        }
+
+        .brand-img {
+            height: 50px; width: auto; object-fit: contain;
+            filter: drop-shadow(0 0 5px rgba(255,255,255,0.1)); 
+        }
+
+        .grid-box {
+            background: var(--panel-bg); border: 1px solid var(--line-col); border-radius: 8px;
+            padding: 15px; display: flex; flex-direction: column; justify-content: center;
+            position: relative; overflow: hidden;
+        }
+
+        .lbl-sm {
+            font-size: 0.7rem; text-transform: uppercase; color: var(--txt-dim);
+            margin-bottom: 5px; letter-spacing: 1px; font-weight: 500;
+        }
+
+        .box-lrg {
+            grid-column: span 2; align-items: center; padding: 30px 10px;
+            background: linear-gradient(180deg, var(--panel-bg) 0%, #0f172a 100%);
+            border: 1px solid var(--line-col);
+        }
+
+        #clock-digits { font-size: 14vw; font-weight: 500; line-height: 0.9; text-shadow: 0 0 20px rgba(255,255,255,0.05); }
+        #cal-str { font-size: 1rem; color: var(--st-ok); margin-top: 10px; text-transform: uppercase; letter-spacing: 2px; }
+        @media(min-width: 500px) { #clock-digits { font-size: 4.5rem; } }
+
+        .net-stat { font-size: 1.2rem; font-weight: 700; display: flex; align-items: center; gap: 10px; }
+        
+        .signal-meter { display: flex; gap: 3px; align-items: flex-end; height: 20px; }
+        .sig-seg { width: 4px; background: #334155; border-radius: 1px; }
+        .sig-seg:nth-child(1) { height: 40%; } .sig-seg:nth-child(2) { height: 60%; }
+        .sig-seg:nth-child(3) { height: 80%; } .sig-seg:nth-child(4) { height: 100%; }
+        
+        .s-up .sig-seg { background: var(--st-ok); box-shadow: 0 0 5px var(--st-ok); }
+        .s-down .sig-seg { background: var(--st-err); }
+
+        .sources-list { display: flex; flex-direction: column; gap: 10px; margin-top: 5px; }
+        .src-row { display: flex; align-items: center; gap: 12px; }
+        .src-led { width: 12px; height: 12px; border-radius: 50%; background: var(--line-col); transition: all 0.3s; }
+        .led-on { background: var(--st-ok); box-shadow: 0 0 10px var(--st-ok); }
+        .led-off { background: var(--st-err); box-shadow: 0 0 10px var(--st-err); }
+        .src-txt { font-size: 1.1rem; font-weight: 500; letter-spacing: 1px; }
+
+        .box-sync {
+            grid-column: span 2; flex-direction: row; justify-content: space-between; align-items: center;
+            padding: 12px 20px; background: rgba(0,0,0,0.2); border: 1px dashed var(--line-col);
+        }
+        #sync-log { font-family: monospace; color: var(--txt-prim); }
+
+        #sys-toast {
+            position: fixed; top: 20px; left: 50%;
+            transform: translateX(-50%) translateY(-200%);
+            background: #1e293b; border-left: 5px solid #3b82f6;
+            color: white; padding: 15px 25px; border-radius: 4px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.6); z-index: 3000;
+            display: flex; align-items: center; gap: 15px;
+            width: 90%; max-width: 400px; transition: transform 0.3s ease-out;
+        }
+        #sys-toast.active { transform: translateX(-50%) translateY(0); }
+        #sys-toast.crit { border-left-color: #ff3300; background: #330000; }
+
+        #emer-layer {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background-color: var(--st-warn);
+            display: none; flex-direction: column;
+            align-items: center; justify-content: center;
+            z-index: 2000; text-align: center;
+            padding: 20px; overflow-y: auto;
+        }
+
+        .ico-warn {
+            font-size: 4rem; margin-bottom: 15px; animation: iconPulse 1s infinite;
+            filter: drop-shadow(0 0 15px rgba(255, 255, 0, 0.6));
+        }
+
+        .panic-box {
+            border: 8px solid #000; padding: 20px; background: rgba(255,255,255,0.15);
+            margin-bottom: 20px; width: 100%; max-width: 500px;
+            animation: framePanic 0.8s infinite ease-in-out;
+        }
+
+        .typo-panic {
+            color: #000; font-weight: 900; text-transform: uppercase; text-align: center;
+            animation: fontPanic 0.8s infinite ease-in-out alternate;
+            text-shadow: 0 0 10px rgba(255,255,255,0.3);
+            font-family: var(--font-stack);
+        }
+
+        .title-huge { font-size: 13vw; line-height: 0.9; }
+        @media(min-width: 600px) { .title-huge { font-size: 5rem; } }
+
+        .time-xl { font-size: 2.5rem; margin-bottom: 20px; letter-spacing: 2px; }
+
+        .instructions { font-size: 1.1rem; line-height: 1.3; max-width: 600px; margin-bottom: 30px; }
+
+        #btn-mute {
+            border: 5px solid #000; 
+            padding: 12px 10px; 
+            background: rgba(255,255,255,0.15);
+            margin-bottom: 20px; 
+            width: 80%; 
+            max-width: 300px;
+            animation: framePanic 0.8s infinite ease-in-out;
+            cursor: pointer;
+            outline: none;
+        }
+        
+        #btn-mute span {
+            font-size: 1.2rem;
+            display: block;
+        }
+
+        #btn-mute:active {
+            transform: translate(4px, 4px);
+            box-shadow: none;
+        }
+
+        @keyframes iconPulse { 0% { transform: scale(1); opacity: 1; } 50% { transform: scale(1.1); opacity: 0.8; } 100% { transform: scale(1); opacity: 1; } }
+        
+        @keyframes fontPanic {
+            0% { transform: scale(1); opacity: 1; text-shadow: 0 0 0 rgba(0,0,0,0); }
+            50% { transform: scale(1.02); opacity: 0.9; text-shadow: 0 0 30px rgba(255,255,255,0.8); color: #fff; }
+            100% { transform: scale(1); opacity: 1; text-shadow: 0 0 0 rgba(0,0,0,0); }
+        }
+        
+        @keyframes framePanic {
+            0% { border-color: #000; transform: scale(1); }
+            50% { border-color: #fff; transform: scale(1.02); box-shadow: 0 0 30px rgba(255,255,255,0.4); }
+            100% { border-color: #000; transform: scale(1); }
+        }
+
+        #init-cover {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: var(--core-bg); z-index: 4000;
+            display: flex; justify-content: center; align-items: center;
+            flex-direction: column; gap: 30px;
+        }
+        .btn-boot {
+            background: transparent; color: var(--st-ok);
+            border: 3px solid var(--st-ok); padding: 20px 60px;
+            font-size: 1.5rem; font-family: var(--font-stack); font-weight: 700;
+            text-transform: uppercase; letter-spacing: 3px; cursor: pointer;
+            transition: all 0.2s;
+        }
+        .btn-boot:hover { background: var(--st-ok); color: #000; box-shadow: 0 0 30px var(--st-ok); }
+        .legal-foot { position: fixed; bottom: 10px; width: 100%; text-align: center; font-size: 0.6rem; color: #475569; }
+    </style>
+</head>
+<body>
+
+    <div id="sys-toast">
+        <div id="t-ico" style="font-size: 2rem;">ℹ️</div>
+        <div>
+            <div id="t-head" style="font-weight:bold; font-size:1rem;">TITULO</div>
+            <div id="t-body" style="font-size:0.8rem; opacity:0.8;">Mensaje...</div>
+        </div>
+    </div>
+
+    <div id="main-grid">
+        <div class="top-deck">
+            <span id="alt-txt" style="font-weight:900; letter-spacing:2px;">MONITOR SASNO</span>
+            <span style="font-size: 0.7rem; color: var(--txt-dim);">V2.0.0.1</span>
+        </div>
+
+        <div class="grid-box box-lrg">
+            <div id="clock-digits">00:00:00</div>
+            <div id="cal-str">...</div>
+        </div>
+
+        <div class="grid-box">
+            <span class="lbl-sm">Estado Red</span>
+            <div class="net-stat">
+                <span id="net-lbl" style="color: var(--st-err);">OFFLINE</span>
+                <div id="sig-vis" class="signal-meter s-down">
+                    <div class="sig-seg"></div><div class="sig-seg"></div><div class="sig-seg"></div><div class="sig-seg"></div>
+                </div>
+            </div>
+        </div>
+
+        <div class="grid-box">
+            <span class="lbl-sm">Fuentes de Alerta</span>
+            <div class="sources-list">
+                <div class="src-row">
+                    <div id="led-sasno" class="src-led led-off"></div>
+                    <span class="src-txt">SASNO</span>
+                </div>
+                <div class="src-row">
+                    <div id="led-sasmex" class="src-led led-off"></div>
+                    <span class="src-txt">SASMEX (VHF)</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="grid-box box-sync">
+            <span class="lbl-sm">Última Sincronización:</span>
+            <span id="sync-log">--:--:--</span>
+        </div>
+    </div>
+
+    <div class="legal-foot">MONITOR SASNO V2</div>
+
+    <div id="emer-layer">
+        <div class="ico-warn">⚠</div>
+        <div class="panic-box">
+            <div class="typo-panic title-huge">ALERTA<br>SÍSMICA</div>
+        </div>
+        <div class="typo-panic time-xl" id="evt-time">00:00:00</div>
+        <div class="typo-panic instructions">
+            Mantenga la calma, aléjese de ventanas y objetos que puedan caer y diríjase de inmediato a la zona de seguridad.
+        </div>
+        <button id="btn-mute" onclick="silenceAlarm()">
+            <span class="typo-panic">Cerrar Aviso</span>
+        </button>
+    </div>
+
+    <div id="init-cover">
+        <button class="btn-boot" onclick="systemBoot()">CONECTAR</button>
+    </div>
+
+    <audio id="snd-main" src="https://app.sasno.mx/alerta.mp3"></audio>
+    <audio id="snd-chk" src="https://app.sasno.mx/prueba.mp3"></audio>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
+        import { getFirestore, doc, onSnapshot } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
+
+        let _lastEventId = 0;
+        const _domSignal = document.getElementById('sig-vis');
+        const _domNetLbl = document.getElementById('net-lbl');
+        const _domSync = document.getElementById('sync-log');
+        const _toastPanel = document.getElementById('sys-toast');
+        const _tIcon = document.getElementById('t-ico');
+        const _tTitle = document.getElementById('t-head');
+        const _tMsg = document.getElementById('t-body');
+        const _ledSasno = document.getElementById('led-sasno');
+        const _ledSasmex = document.getElementById('led-sasmex');
+
+        const sysConf = {
+            apiKey: "AIzaSyCT2l8xHE3J-9rD-YvBcdhokNbL1msJ0OQ",
+            authDomain: "sasno-d79e1.firebaseapp.com",
+            projectId: "sasno-d79e1",
+            storageBucket: "sasno-d79e1.firebasestorage.app",
+            messagingSenderId: "273171190720",
+            appId: "1:273171190720:web:780b9492f07413be5c2e25",
+            measurementId: "G-SKBE2E8GZF"
+        };
+
+        const _appInstance = initializeApp(sysConf);
+        const _dbInstance = getFirestore(_appInstance);
+        const _targetDoc = doc(_dbInstance, "Pruebas", "Mensajes");
+
+        const renderNetworkState = (isConnected) => {
+            if (isConnected) {
+                _domNetLbl.innerText = "Esperando Alerta..."; 
+                _domNetLbl.style.color = "var(--st-ok)";
+                _domSignal.className = "signal-meter s-up";
+                _ledSasno.className = "src-led led-on";
+                _ledSasmex.className = "src-led led-on";
+            } else {
+                _domNetLbl.innerText = "DESCONECTADO"; 
+                _domNetLbl.style.color = "var(--st-err)";
+                _domSignal.className = "signal-meter s-down";
+                _ledSasno.className = "src-led led-off";
+                _ledSasmex.className = "src-led led-off";
+            }
+        };
+
+        const triggerPopup = (icon, title, desc, isCritical) => {
+            _tIcon.innerText = icon;
+            _tTitle.innerText = title;
+            _tMsg.innerText = desc;
+            if (isCritical) _toastPanel.classList.add('crit');
+            else _toastPanel.classList.remove('crit');
+            _toastPanel.classList.add('active');
+            setTimeout(() => _toastPanel.classList.remove('active'), 5000);
+        };
+
+        const executeDrill = () => {
+            const fx = document.getElementById('snd-chk');
+            fx.currentTime = 0; fx.play().catch(e => console.warn(e));
+            triggerPopup('ℹ️', 'REPORTE SERVIDOR', 'Código RWT recibido correctamente', false);
+        };
+
+        const executeEmergency = (dateRef) => {
+            document.getElementById('evt-time').innerText = dateRef.toLocaleTimeString('es-MX');
+            document.getElementById('emer-layer').style.display = 'flex';
+            const fx = document.getElementById('snd-main');
+            fx.currentTime = 0; fx.play().catch(e => console.warn(e));
+            triggerPopup('⚠', 'ALERTA SÍSMICA', 'Protocolo de emergencia activado', true);
+        };
+
+        const parseStreamData = (strData) => {
+            if (!strData) return;
+            const fragments = strData.split(',');
+            if (fragments.length !== 2) return;
+            const evCode = parseInt(fragments[0]);
+            const evTime = parseInt(fragments[1]);
+            const sysTime = Math.floor(Date.now() / 1000);
+            if ((sysTime - evTime) > 120) return;
+            if (evTime === _lastEventId) return;
+            _lastEventId = evTime;
+            if (evCode === 500) executeEmergency(new Date(evTime * 1000));
+            else if (evCode === 200) executeDrill();
+        };
+
+        window.startWatchdog = () => {
+            onSnapshot(_targetDoc, (snapshot) => {
+                if (snapshot.metadata.fromCache) {
+                    renderNetworkState(false);
+                } else {
+                    renderNetworkState(true);
+                    // Actualizamos la sincronización usando la hora ficticia
+                    const fakeNow = new Date(Date.now() + window.timeOffset);
+                    _domSync.innerText = fakeNow.toLocaleTimeString('es-MX');
+                    if (snapshot.exists()) parseStreamData(snapshot.data().current);
+                }
+            }, (err) => {
+                renderNetworkState(false);
+            });
+        };
+    </script>
+
+    <script>
+        // --- LÓGICA DE HORA PERSONALIZADA ---
+        window.timeOffset = 0;
+
+        function sysTick() {
+            // Calculamos la hora actual sumando el offset a la hora real del sistema
+            const d = new Date(Date.now() + window.timeOffset);
+            
+            const tStr = d.toLocaleTimeString('es-MX', { 
+                hour: '2-digit', 
+                minute: '2-digit', 
+                second: '2-digit', 
+                hour12: false 
+            });
+            
+            const parts = tStr.split(':');
+            const sep = '<span style="opacity:0.4; margin:0 2px;">:</span>';
+            const tFmt = parts[0] + sep + parts[1] + sep + parts[2];
+            
+            document.getElementById('clock-digits').innerHTML = tFmt;
+            document.getElementById('cal-str').innerText = d.toLocaleDateString('es-MX', { weekday: 'long', day: 'numeric', month: 'long' });
+            
+            requestAnimationFrame(sysTick);
+        }
+
+        async function systemBoot() {
+            // 1. Configurar la fecha objetivo: 6 de mayo de 2024 (o el año actual) a las 10:59:30 AM
+            // Nota: En JS los meses empiezan en 0 (Enero=0, Mayo=4)
+            const targetDate = new Date();
+            targetDate.setMonth(4); // Mayo
+            targetDate.setDate(6);  // Día 6
+            targetDate.setHours(10, 59, 30, 0); // 10:59:30 AM
+
+            // 2. Calcular la diferencia (offset) entre la hora deseada y la real actual
+            window.timeOffset = targetDate.getTime() - Date.now();
+
+            document.getElementById('init-cover').style.display = 'none';
+            sysTick();
+            
+            if(window.startWatchdog) window.startWatchdog();
+
+            // Preparar audio
+            const audiomap = ['snd-main', 'snd-chk'];
+            audiomap.forEach(id => {
+                const el = document.getElementById(id);
+                el.muted = true;
+                el.play().then(() => { 
+                    el.pause(); 
+                    el.currentTime = 0; 
+                    el.muted = false; 
+                }).catch(e => {});
+            });
+        }
+
+        window.silenceAlarm = () => {
+            document.getElementById('emer-layer').style.display = 'none';
+            document.getElementById('snd-main').pause();
+        };
+    </script>
+</body>
+</html>
